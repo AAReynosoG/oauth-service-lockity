@@ -70,6 +70,7 @@
 
         .nav-tabs-container {
             display: flex;
+            justify-content: center;
             gap: 15px;
             margin-bottom: 25px;
         }
@@ -101,7 +102,7 @@
             left: 0;
             width: 100%;
             height: 3px;
-            background-color: #FED167;
+            background-color: #ffffff;
             transform: scaleX(0);
             transition: transform 0.3s;
         }
@@ -252,6 +253,13 @@
 </head>
 <body>
 <div class="login-container">
+    <!-- Tabs -->
+    <div class="nav-tabs-container">
+        <a href="#" class="nav-tab route">Home</a>
+        <a href="{{ route('register') }}" class="nav-tab route">Sign Up</a>
+        <a href="#" class="nav-tab route active">Sign In</a>
+    </div>
+
     <!-- Logo Lockity -->
     <div class="logo-section">
         <img src="{{ asset('images/lockity-logo.png') }}" alt="Lockity logo">
@@ -261,12 +269,6 @@
         <!-- Title -->
         <div class="welcome-container">
             <h1 class="welcome-text">Welcome Back</h1>
-        </div>
-
-        <!-- Tabs -->
-        <div class="nav-tabs-container">
-            <a href="{{ route('register') }}" class="nav-tab route">Sign Up</a>
-            <a href="#" class="nav-tab route active">Sign In</a>
         </div>
 
         <!-- Error messages -->
@@ -328,7 +330,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Función para alternar visibilidad de contraseña
     function setupPasswordToggle(inputId, iconId) {
         const toggleIcon = document.getElementById(iconId);
         const passwordInput = document.getElementById(inputId);

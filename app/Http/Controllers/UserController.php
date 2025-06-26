@@ -18,7 +18,7 @@ class UserController extends Controller
         $user = $request->user();
 
         $validator = Validator::make($request->all(), [
-            'first_name' => ['sometimes', new FullNameValidation],
+            'name' => ['sometimes', new FullNameValidation],
             'last_name' => ['sometimes', new FullNameValidation],
             'second_last_name' => ['sometimes', new FullNameValidation],
             'email' => [

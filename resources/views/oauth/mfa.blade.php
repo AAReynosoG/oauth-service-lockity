@@ -109,6 +109,19 @@
             font-size: 16px;
         }
 
+        .btn-login:disabled {
+            background-color: #FED166;
+            color: #2E2D2D;
+            border: none;
+            height: 50px;
+            font-weight: 600;
+            border-radius: 0;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
         .btn-login:hover {
             background-color: #FED166;
         }
@@ -222,15 +235,28 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="code" class="form-label">Code</label>
-                        <input type="number" class="form-control" id="code" name="code" value="{{ old('code') }}" required>
+                        <input type="number" class="form-control" id="code" name="code" value="{{ old('code') }}" required oninput="validateCodeLength()">
                     </div>
                 </div>
-                <button type="submit" class="btn btn-login">Sign In</button>
+                <button id="submit-button" type="submit" class="btn btn-login" disabled>Sign In</button>
             </form>
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    function validateCodeLength() {
+        const submitButton = document.getElementById('submit-button');
+        const input = document.getElementById('code');
+
+        input.value = input.value.slice(0, 6);
+
+        if (input.value.length < 6) {
+            submitButton.disabled = true;
+        }
+    }
+</script>
 </body>
 </html>

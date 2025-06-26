@@ -62,12 +62,6 @@
             margin: 0;
         }
 
-        .subtitle {
-            font-size: 18px;
-            color: #929496;
-            margin-top: 10px;
-        }
-
         .nav-tabs-container {
             display: flex;
             justify-content: center;
@@ -160,7 +154,20 @@
 
         .btn-login {
             background-color: #FED166;
-            color: #2f2c2d;
+            color: #2E2D2D;
+            border: none;
+            height: 50px;
+            font-weight: 600;
+            border-radius: 0;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        .btn-login:disabled {
+            background-color: #FED166;
+            color: #2E2D2D;
             border: none;
             height: 50px;
             font-weight: 600;
@@ -300,7 +307,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}" required>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}" required oninput="validateEmail()">
                     </div>
                 </div>
 
@@ -322,7 +329,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-login">Sign In</button>
+                <button id="submit-button" type="submit" class="btn btn-login" disabled>Sign In</button>
             </form>
         </div>
     </div>
@@ -349,6 +356,17 @@
                 }
             });
         }
+    }
+
+    function validateEmail() {
+        const email = document.getElementById('email').value;
+        const submitButton = document.getElementById('submit-button')
+
+        const emailRegex = /^(?=.{5,100}$)[\p{L}0-9._-]+@[\p{L}0-9-]+(?:\.[\p{L}0-9-]+)*\.[\p{L}0-9]{2,}$/u;
+
+        const isFormValid = emailRegex.test(email)
+
+        submitButton.disabled = !isFormValid;
     }
 
     setupPasswordToggle('password', 'togglePassword');

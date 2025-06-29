@@ -253,9 +253,7 @@
 
         input.value = input.value.slice(0, 6);
 
-        if (input.value.length < 6) {
-            submitButton.disabled = true;
-        }
+        submitButton.disabled = input.value.length !== 6;
     }
 </script>
 </body>

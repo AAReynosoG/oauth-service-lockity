@@ -6,6 +6,7 @@ use App\Mail\EmailVerification;
 use App\Mail\MfaCode;
 use App\Models\TwoFactorCode;
 use App\Models\User;
+use App\Notifications\ErrorSlackNotification;
 use App\Rules\EmailValidation;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -14,13 +15,11 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
 
 class LoginController extends Controller
 {
-    /**
-     * Show up login form
-    */
     public function showLoginForm()
     {
         return view('oauth.login');
@@ -131,6 +130,8 @@ class LoginController extends Controller
 
                 $msg .= ' A new verification email has been sent.';
             } catch (\Exception $e) {
+                $notification = new ErrorSlackNotification($e);
+                Notification::route('slack', env('SLACK_WEBHOOK'))->notify($notification);
                 return back()->withErrors(['email' => 'Could not send a new verification email, try again later.']);
             }
         }
@@ -158,6 +159,8 @@ class LoginController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
+            $notification = new ErrorSlackNotification($e);
+            Notification::route('slack', env('SLACK_WEBHOOK'))->notify($notification);
             throw $e;
         }
     }

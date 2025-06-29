@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\EmailVerification;
 use App\Models\User;
+use App\Notifications\ErrorSlackNotification;
 use App\Rules\EmailValidation;
 use App\Rules\FullNameValidation;
 use App\Rules\PasswordValidation;
@@ -12,13 +13,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
 
 class RegisterController extends Controller
 {
-    /**
-     * Show up register form
-    */
     public function showRegisterForm()
     {
         return view('oauth.register');
@@ -57,6 +56,8 @@ class RegisterController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
+            $notification = new ErrorSlackNotification($e);
+            Notification::route('slack', env('SLACK_WEBHOOK'))->notify($notification);
             return redirect()->back()->withErrors(['error' => 'Could not send verification email, your account could not be created. Try again later.']);
         }
 

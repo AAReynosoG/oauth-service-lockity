@@ -15,7 +15,6 @@ use Illuminate\Validation\Rule;
 class UserController extends Controller
 {
     public function me(Request $request) {
-
         $user = $request->user();
 
         $userRoles = DB::table("locker_user_roles")
@@ -65,7 +64,7 @@ class UserController extends Controller
             'success' => true,
             'message' => 'User updated successfully.',
             'data' => $user,
-        ], 200);
+        ]);
     }
 
     public function updatePassword(Request $request)
@@ -100,4 +99,20 @@ class UserController extends Controller
 
         return response()->json([], 204);
     }
+
+    public function hasLockers(Request $request) {
+        $user = $request->user();
+
+        $hasLockers = DB::table("access_permission_compartments as a_p_c")
+            ->leftJoin("access_permissions as a_p", "a_p.id", "a_p_c.access_permission_id")
+            ->where("a_p.user_id", $user->id)
+            ->exists();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User info retrieved successfully',
+            'data' => ['has_lockers' => $hasLockers]
+        ]);
+    }
+
 }

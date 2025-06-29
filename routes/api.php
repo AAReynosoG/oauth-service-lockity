@@ -22,4 +22,5 @@ Route::prefix('users')->middleware('auth:api')->group(function () {
     Route::get('/me', [UserController::class, 'me']);
     Route::put('/me', [UserController::class, 'update']);
     Route::put('/me/password', [UserController::class, 'updatePassword']);
+    Route::get('/has-lockers', [UserController::class, 'hasLockers']);
 });

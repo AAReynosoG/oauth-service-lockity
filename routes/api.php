@@ -19,14 +19,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('users')->middleware('auth:api')->group(function () {
     Route::post('/auth/logout', [LoginController::class, 'logout'])->name('logout');
 
-    Route::get('/me', function (Request $request) {
-        return response()->json([
-            'success' => true,
-            'message' => 'User data retrieved successfully',
-            'data' => $request->user()
-        ]);
-    });
-
+    Route::get('/me', [UserController::class, 'me']);
     Route::put('/me', [UserController::class, 'update']);
     Route::put('/me/password', [UserController::class, 'updatePassword']);
 });

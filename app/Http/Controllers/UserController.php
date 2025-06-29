@@ -7,12 +7,39 @@ use App\Rules\FullNameValidation;
 
 use App\Rules\PasswordValidation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
+    public function me(Request $request) {
+
+        $user = $request->user();
+
+        $userRoles = DB::table("locker_user_roles")
+            ->leftJoin("lockers", "lockers.id", "locker_user_roles.locker_id")
+            ->leftJoin("areas", "areas.id", "lockers.area_id")
+            ->leftJoin("organizations", "organizations.id", "areas.organization_id")
+            ->where("locker_user_roles.user_id", $user->id)
+            ->select(
+                "locker_user_roles.role",
+                "lockers.serial_number as locker_serial_number",
+                "areas.name as area_name",
+                "organizations.name as organization_name"
+            )
+            ->get();
+
+        $data = $user;
+        $data->roles = $userRoles;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User data retrieved successfully',
+            'data' => $data
+        ]);
+    }
     public function update(Request $request)
     {
         $user = $request->user();

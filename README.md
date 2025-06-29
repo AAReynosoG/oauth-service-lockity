@@ -15,6 +15,11 @@ cp .env.example .env
  composer require laravel/passport
  ```
 
+`Slack Notifications`.
+ ```
+ composer require laravel/slack-notification-channel
+ ```
+
 ### Base de Datos
 **Importante** En lugar de ejecutar las migraciones que vienen en el proyecto, 
  se deben ejecutar las sentencias SQL que vienen en el archivo `lockity_tables.txt`, de esa manera se puede tener la base de datos completa en entorno local.

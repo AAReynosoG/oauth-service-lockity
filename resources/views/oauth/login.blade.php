@@ -32,7 +32,7 @@
                         <input type="password" class="form-control" id="password" name="password" required>
                         <span class="toggle-password" id="togglePassword">
                                 <i class="fas fa-eye"></i>
-                            </span>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -59,5 +59,7 @@
         submitButton.disabled = !isFormValid;
     }
 
-    setupPasswordToggle('password', 'togglePassword');
+    document.addEventListener('DOMContentLoaded', function() {
+        setupPasswordToggle('password', 'togglePassword');
+    });
 </script>

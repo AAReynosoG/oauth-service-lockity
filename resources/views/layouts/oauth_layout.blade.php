@@ -198,6 +198,21 @@
             width: 100%;
         }
 
+        .success-message {
+            background: rgba(30, 114, 14, 0.2);
+            border-left: 4px solid #5cdc35;
+            padding: 10px 15px;
+            border-radius: 0 4px 4px 0;
+            margin-bottom: 20px;
+            color: #5cdc35;
+            width: 100%;
+        }
+
+        .success-message ul {
+            margin-bottom: 0;
+            padding-left: 20px;
+        }
+
         .error-message ul {
             margin-bottom: 0;
             padding-left: 20px;

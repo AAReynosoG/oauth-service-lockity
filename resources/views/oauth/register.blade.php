@@ -94,7 +94,9 @@
         submitButton.disabled = !isFormValid;
     }
 
-    setupPasswordToggle('password', 'togglePassword');
-    setupPasswordToggle('password_confirmation', 'toggleConfirmPassword');
+    document.addEventListener('DOMContentLoaded', function() {
+        setupPasswordToggle('password', 'togglePassword');
+        setupPasswordToggle('password_confirmation', 'toggleConfirmPassword');
+    });
 </script>
 

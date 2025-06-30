@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Laravel\Passport\Exceptions\OAuthServerException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -44,7 +45,17 @@ class Handler extends ExceptionHandler
     public function register()
     {
         $this->reportable(function (Throwable $e) {
-            //
         });
+    }
+
+    public function render($request, Throwable $e)
+    {
+        if ($e instanceof OAuthServerException) {
+            return redirect()->route('login.view')->withErrors([
+                'email' => 'Oops! Something went wrong'
+            ]);
+        }
+
+        return parent::render($request, $e);
     }
 }

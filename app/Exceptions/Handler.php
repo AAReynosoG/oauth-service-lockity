@@ -2,6 +2,8 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Laravel\Passport\Exceptions\OAuthServerException;
 use Throwable;
@@ -54,6 +56,30 @@ class Handler extends ExceptionHandler
             return redirect()->route('login.view')->withErrors([
                 'email' => 'Oops! Something went wrong'
             ]);
+        }
+
+        if ($e instanceof AuthenticationException) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+                'errors' => null,
+            ], 401);
+        }
+
+        if ($e instanceof AuthorizationException) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Forbidden action',
+                'errors' => null,
+            ], 403);
+        }
+
+        if ($e instanceof \Exception) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Internal server error',
+                'errors' => $e,
+            ], 500);
         }
 
         return parent::render($request, $e);

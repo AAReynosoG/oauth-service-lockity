@@ -5,7 +5,6 @@
 
 @section('tabs')
     <div class="nav-tabs-container">
-        <a href="#" class="nav-tab route">Home</a>
         <a href="{{ route('register') }}" class="nav-tab route">Sign Up</a>
         <a href="#" class="nav-tab route active">Sign In</a>
     </div>

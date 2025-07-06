@@ -5,7 +5,6 @@
 
 @section('tabs')
     <div class="nav-tabs-container">
-        <a href="#" class="nav-tab route">Home</a>
         <a href="#" class="nav-tab route active">Sign Up</a>
         <a href="{{ route('login') }}" class="nav-tab route">Sign In</a>
     </div>
@@ -61,6 +60,26 @@
                         <i class="fas fa-eye"></i>
                     </span>
                 </div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <p  class="form-label">Your password must contain: </p>
+                <ul class="form-label">
+                    <li>Minimum 8 characters</li>
+                    <li>Maximum 255 characters</li>
+                    <li>At least 1 lowercase letter</li>
+                </ul>
+            </div>
+
+            <div class="form-group">
+                <ul class="form-label">
+                    <li>At least 1 capital letter</li>
+                    <li>At least 1 digit (0-9)</li>
+                    <li>At least 1 special character</li>
+                    <li>No white spaces</li>
+                </ul>
             </div>
         </div>
 

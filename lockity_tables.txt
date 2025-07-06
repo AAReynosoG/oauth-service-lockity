@@ -199,6 +199,8 @@ CREATE TABLE access_permission_compartments (
     id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     access_permission_id INT UNSIGNED NOT NULL,
     compartment_id       INT UNSIGNED NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (access_permission_id) REFERENCES access_permissions(id) ON DELETE RESTRICT,
     FOREIGN KEY (compartment_id)         REFERENCES compartments(id),
     UNIQUE (access_permission_id, compartment_id)

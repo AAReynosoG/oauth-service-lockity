@@ -69,16 +69,20 @@ class Handler extends ExceptionHandler
             return parent::render($request, $e);
         }
 
-        if ($e instanceof MethodNotAllowedHttpException) {
-            return parent::render($request, $e);
-        }
-
         if ($e instanceof ValidationException) {
             return parent::render($request, $e);
         }
 
         if ($e instanceof TokenMismatchException) {
             return parent::render($request, $e);
+        }
+
+        if ($e instanceof MethodNotAllowedHttpException) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Method not allowed',
+                'errors' => null,
+            ], 404);
         }
 
         if ($e instanceof NotFoundHttpException) {

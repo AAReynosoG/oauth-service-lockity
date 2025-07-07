@@ -82,7 +82,7 @@ class Handler extends ExceptionHandler
                 'success' => false,
                 'message' => 'Method not allowed',
                 'errors' => null,
-            ], 404);
+            ], 405);
         }
 
         if ($e instanceof NotFoundHttpException) {

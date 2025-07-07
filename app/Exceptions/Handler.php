@@ -6,9 +6,13 @@ use App\Notifications\ErrorSlackNotification;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Validation\ValidationException;
 use Laravel\Passport\Exceptions\OAuthServerException;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -62,11 +66,27 @@ class Handler extends ExceptionHandler
         }
 
         if ($e instanceof AuthenticationException) {
+            return parent::render($request, $e);
+        }
+
+        if ($e instanceof MethodNotAllowedHttpException) {
+            return parent::render($request, $e);
+        }
+
+        if ($e instanceof ValidationException) {
+            return parent::render($request, $e);
+        }
+
+        if ($e instanceof TokenMismatchException) {
+            return parent::render($request, $e);
+        }
+
+        if ($e instanceof NotFoundHttpException) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized',
+                'message' => 'Resource not found',
                 'errors' => null,
-            ], 401);
+            ], 404);
         }
 
         if ($e instanceof AuthorizationException) {

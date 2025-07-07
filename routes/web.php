@@ -49,10 +49,13 @@ Route::group(['middleware' => ['web', 'auth']], function () {
 Route::post('/oauth/token', [AccessTokenController::class, 'issueToken'])
     ->middleware('throttle');
 
-
-/*For testing only*/
-Route::get('/force-logout', function () {
+Route::any('/web-logout', function () {
     Auth::logout();
     Session::invalidate();
-    return redirect('/login');
-});
+    Session::regenerate();
+    return response()->json([
+        'success' => true,
+        'message' => "Logged out successfully",
+        'data' => null
+    ]);
+})->middleware('web');

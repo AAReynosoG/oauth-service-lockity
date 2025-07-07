@@ -42,9 +42,44 @@ class ErrorSlackNotification extends Notification
      */
     public function toSlack($notifiable)
     {
+        $e = $this->exception;
+
+        if(!is_object($e)) {
+            return (new SlackMessage)
+                ->error()
+                ->content('*Exception Triggered*')
+                ->attachment(function ($attachment) {
+                    $attachment->fields([
+                        'Environment' => config('app.env'),
+                        'Message' => 'Non-object exception received',
+                        'Code' => 500,
+                        'Location' => 'Unknown',
+                        'Trace' => 'No stack trace available'
+                    ]);
+                });
+        }
+
+        $message = method_exists($e, 'getMessage') ? $e->getMessage() : 'Unknown error';
+        $code = method_exists($e, 'getCode') ? $e->getCode() : 500;
+        $file = method_exists($e, 'getFile') ? $e->getFile() : 'Unknown file';
+        $line = method_exists($e, 'getLine') ? $e->getLine() : 0;
+
+        $trace = method_exists($e, 'getTraceAsString')
+            ? substr($e->getTraceAsString(), 0, 1000)
+            : 'No stack trace available';
+
         return (new SlackMessage)
             ->error()
-            ->content($this->exception);
+            ->content('*Exception Triggered*')
+            ->attachment(function ($attachment) use ($message, $code, $file, $line, $trace) {
+                $attachment->fields([
+                    'Environment' => config('app.env'),
+                    'Message' => $message,
+                    'Code' => $code,
+                    'Location' => "{$file}:{$line}",
+                    'Trace' => "```{$trace}```"
+                ]);
+            });
     }
 
     /**

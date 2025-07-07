@@ -2,10 +2,13 @@
 
 namespace App\Exceptions;
 
+use App\Notifications\ErrorSlackNotification;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Facades\Notification;
 use Laravel\Passport\Exceptions\OAuthServerException;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -75,6 +78,16 @@ class Handler extends ExceptionHandler
         }
 
         if ($e instanceof \Exception) {
+
+            try {
+                $notification = new ErrorSlackNotification($e);
+                Notification::route('slack', env('SLACK_WEBHOOK'))->notify($notification);
+            } catch (Throwable $e) {
+                Log::error('Failed to send to Slack: ' . $e);
+            }
+
+            Log::error('Error triggered: ' . $e);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Internal server error',

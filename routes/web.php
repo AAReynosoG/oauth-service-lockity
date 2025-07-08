@@ -4,7 +4,6 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 
@@ -12,7 +11,6 @@ use Laravel\Passport\Http\Controllers\AuthorizationController;
 use Laravel\Passport\Http\Controllers\ApproveAuthorizationController;
 use Laravel\Passport\Http\Controllers\DenyAuthorizationController;
 use Laravel\Passport\Http\Controllers\AccessTokenController;
-use Illuminate\Http\Request;
 
 
 /*
@@ -51,13 +49,10 @@ Route::group(['middleware' => ['web', 'auth']], function () {
 Route::post('/oauth/token', [AccessTokenController::class, 'issueToken'])
     ->middleware('throttle');
 
-Route::any('/web-logout', function (Request $request) {
-    Session::flush();
+Route::any('/web-logout', function () {
     Auth::logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-
-    Cookie::queue(Cookie::forget(Auth::getRecallerName()));
+    Session::invalidate();
+    Session::regenerateToken();
 
     return response()->json([
         'success' => true,

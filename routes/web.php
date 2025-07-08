@@ -51,12 +51,12 @@ Route::post('/oauth/token', [AccessTokenController::class, 'issueToken'])
     ->middleware('throttle');
 
 Route::any('/web-logout', function (Request $request) {
-    Auth::logout();
+    $request->user()->logout();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
     return response()->json([
         'success' => true,
-        'message' => "Logged out successfully",
+        'message' => "Logged out from web successfully",
         'data' => null
     ]);
 })->middleware('web');

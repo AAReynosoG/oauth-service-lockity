@@ -11,6 +11,7 @@ use Laravel\Passport\Http\Controllers\AuthorizationController;
 use Laravel\Passport\Http\Controllers\ApproveAuthorizationController;
 use Laravel\Passport\Http\Controllers\DenyAuthorizationController;
 use Laravel\Passport\Http\Controllers\AccessTokenController;
+use Illuminate\Http\Request;
 
 
 /*
@@ -49,10 +50,10 @@ Route::group(['middleware' => ['web', 'auth']], function () {
 Route::post('/oauth/token', [AccessTokenController::class, 'issueToken'])
     ->middleware('throttle');
 
-Route::any('/web-logout', function () {
+Route::any('/web-logout', function (Request $request) {
     Auth::logout();
-    Session::invalidate();
-    Session::regenerate();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
     return response()->json([
         'success' => true,
         'message' => "Logged out successfully",

@@ -4,6 +4,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 
@@ -55,6 +56,9 @@ Route::any('/web-logout', function (Request $request) {
     Auth::logout();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
+
+    Cookie::queue(Cookie::forget(Auth::getRecallerName()));
+
     return response()->json([
         'success' => true,
         'message' => "Logged out from web successfully",

@@ -61,7 +61,7 @@ class RegisterController extends Controller
             return redirect()->back()->withErrors(['error' => 'Could not send verification email, your account could not be created. Try again later.']);
         }
 
-        return redirect()->route('login.view')->with('success_messages', ['Registered Successfully.']);
+        return redirect()->route('register.view')->with('success_messages', ['Registered Successfully. A verification email has been sent to your email address.']);
     }
 
     public function emailVerification(Request $request) {

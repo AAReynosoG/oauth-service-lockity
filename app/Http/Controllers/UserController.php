@@ -49,54 +49,24 @@ class UserController extends Controller
             'name' => ['sometimes', new FullNameValidation],
             'last_name' => ['sometimes', new FullNameValidation],
             'second_last_name' => ['sometimes', new FullNameValidation],
-            'email' => [
-                'sometimes',
-                new EmailValidation,
-                Rule::unique('users')->ignore($user->id)
-            ],
         ]);
 
         if ($validator->fails()) {
             return response()->json(["success" => false, "message" => "Validation error", "errors" => $validator->errors()], 422);
         }
 
-        $emailChanged = isset($request->email) && $user->email !== $request->email;
-
         try {
             DB::beginTransaction();
 
             $updateData = $validator->validated();
-            
-            if ($emailChanged) {
-                DB::table('oauth_access_tokens')
-                    ->where('user_id', $user->id)
-                    ->where('revoked', false)
-                    ->update(['revoked' => true]);
-
-                $accessTokenIds = DB::table('oauth_access_tokens')
-                    ->where('user_id', $user->id)
-                    ->pluck('id');
-
-                DB::table('oauth_refresh_tokens')
-                    ->whereIn('access_token_id', $accessTokenIds)
-                    ->where('revoked', false)
-                    ->update(['revoked' => true]);
-                
-                $updateData['has_email_verified'] = false;
-                $updateData['verification_link_sent_at'] = null;
-            }
-
+            unset($updateData['email']);
             $user->update($updateData);
 
             DB::commit();
 
-            $message = $emailChanged 
-                ? 'User updated successfully. All sessions revoked. Please log in again.' 
-                : 'User updated successfully.';
-
             return response()->json([
                 'success' => true,
-                'message' => $message,
+                'message' => 'User updated successfully.',
                 'data' => null,
             ]);
 

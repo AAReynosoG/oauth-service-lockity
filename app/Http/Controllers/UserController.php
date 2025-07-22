@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -39,6 +40,7 @@ class UserController extends Controller
             'data' => $data
         ]);
     }
+
     public function update(Request $request)
     {
         $user = $request->user();
@@ -58,13 +60,56 @@ class UserController extends Controller
             return response()->json(["success" => false, "message" => "Validation error", "errors" => $validator->errors()], 422);
         }
 
-        $user->update($validator->validated());
+        $emailChanged = isset($request->email) && $user->email !== $request->email;
 
-        return response()->json([
-            'success' => true,
-            'message' => 'User updated successfully.',
-            'data' => $user,
-        ]);
+        try {
+            DB::beginTransaction();
+
+            $updateData = $validator->validated();
+            
+            if ($emailChanged) {
+                DB::table('oauth_access_tokens')
+                    ->where('user_id', $user->id)
+                    ->where('revoked', false)
+                    ->update(['revoked' => true]);
+
+                $accessTokenIds = DB::table('oauth_access_tokens')
+                    ->where('user_id', $user->id)
+                    ->pluck('id');
+
+                DB::table('oauth_refresh_tokens')
+                    ->whereIn('access_token_id', $accessTokenIds)
+                    ->where('revoked', false)
+                    ->update(['revoked' => true]);
+                
+                $updateData['has_email_verified'] = false;
+                $updateData['verification_link_sent_at'] = null;
+            }
+
+            $user->update($updateData);
+
+            DB::commit();
+
+            $message = $emailChanged 
+                ? 'User updated successfully. All sessions revoked. Please log in again.' 
+                : 'User updated successfully.';
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'data' => null,
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error updating user: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Internal Server Error.',
+                'data' => null
+            ], 500);
+        }
     }
 
     public function updatePassword(Request $request)
@@ -94,10 +139,25 @@ class UserController extends Controller
             ], 422);
         }
 
-        $user->password = Hash::make($request->new_password);
-        $user->save();
+        try {
+            DB::beginTransaction();
 
-        return response()->json([], 204);
+            $user->password = Hash::make($request->new_password);
+            $user->save();
+
+            DB::commit();
+
+            return response()->json([], 204);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error updating password: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Internal Server Error.',
+                'data' => null
+            ], 500);
+        }
     }
 
     public function hasLockers(Request $request) {

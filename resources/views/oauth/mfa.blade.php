@@ -8,7 +8,7 @@
 @endsection
 
 @section('form-content')
-    <form method="POST" action="{{ route('code') }}">
+    <form id="form" method="POST" action="{{ route('code') }}">
         @csrf
         <div class="form-row">
             <div class="form-group">

@@ -15,7 +15,7 @@
 @endsection
 
 @section('form-content')
-        <form method="POST" action="{{ route('login') }}">
+        <form id="form" method="POST" action="{{ route('login') }}">
             @csrf
             <div class="form-row">
                 <div class="form-group">

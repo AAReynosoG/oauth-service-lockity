@@ -15,7 +15,7 @@
 @endsection
 
 @section('form-content')
-    <form method="POST" action="{{ route('register') }}">
+    <form id="form" method="POST" action="{{ route('register') }}">
         @csrf
         <div class="form-row">
             <div class="form-group">

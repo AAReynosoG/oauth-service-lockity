@@ -327,6 +327,16 @@
             });
         }
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('form');
+
+        form.addEventListener('submit', function(event) {
+            const submitButton = document.getElementById('submit-button');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Processing...';
+        });
+    });
 </script>
 </body>
 </html>

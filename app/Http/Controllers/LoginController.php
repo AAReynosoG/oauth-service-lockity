@@ -17,10 +17,12 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
+use Laravel\Passport\Client;
+
 
 class LoginController extends Controller
 {
-    public function showLoginForm()
+    public function showLoginForm(Request $request)
     {
         return view('oauth.login');
     }
@@ -30,9 +32,55 @@ class LoginController extends Controller
         return view('oauth.mfa');
     }
 
+    private function validateOAuthParams() {
+        $oauthParams = session('oauth_params');
+        $msg = 'Invalid client. Please start over.';
+
+        if (!$oauthParams) {
+            return $msg;
+        }
+
+        $clientId = $oauthParams['client_id'] ?? null;
+        $redirectUri = $oauthParams['redirect_uri'] ?? null;
+        $codeChalenge = $oauthParams['code_challenge'] ?? null;
+        $codeChallengeMethod = $oauthParams['code_challenge_method'] ?? null;
+        $responseType = $oauthParams['response_type'] ?? null;
+        $state = $oauthParams['state'] ?? null;
+
+        if (!$clientId || !$redirectUri || !$codeChalenge || !$codeChallengeMethod || !$responseType || !$state) {
+            return $msg;
+        }
+
+        if (!filter_var($redirectUri, FILTER_VALIDATE_URL)) {
+            return $msg;
+        }
+
+        $client = Client::find($clientId);
+
+        if (!$client) {
+            return $msg;
+        }
+
+        if (!in_array($responseType, ['code', 'token'])) {
+            return $msg;
+        }
+
+        if (!in_array($redirectUri, explode(',', $client->redirect))) {
+            return $msg;
+        }
+
+        return true;
+    }
 
     public function login(Request $request)
-    {
+    {        
+        $oauthValidation = $this->validateOAuthParams($request);
+        if ($oauthValidation !== true) {
+            return back()->withErrors(['email' => $oauthValidation]);
+        }
+
+        session()->forget('oauth_params');
+
         $credentials = $request->validate([
             'email' => ['required', new EmailValidation],
             'password' => ['required'],

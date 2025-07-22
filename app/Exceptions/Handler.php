@@ -61,7 +61,7 @@ class Handler extends ExceptionHandler
     {
         if ($e instanceof OAuthServerException) {
             return redirect()->route('login.view')->withErrors([
-                'email' => 'Oops! Something went wrong'
+                'email' => 'Oops! Something went wrong. This could be due to invalid client. Please start over'
             ]);
         }
 
@@ -101,23 +101,23 @@ class Handler extends ExceptionHandler
             ], 403);
         }
 
-        if ($e instanceof \Exception) {
+        // if ($e instanceof \Exception) {
 
-            try {
-                $notification = new ErrorSlackNotification($e);
-                Notification::route('slack', env('SLACK_WEBHOOK'))->notify($notification);
-            } catch (Throwable $e) {
-                Log::error('Failed to send to Slack: ' . $e);
-            }
+        //     try {
+        //         $notification = new ErrorSlackNotification($e);
+        //         Notification::route('slack', env('SLACK_WEBHOOK'))->notify($notification);
+        //     } catch (Throwable $e) {
+        //         Log::error('Failed to send to Slack: ' . $e);
+        //     }
 
-            Log::error('Error triggered: ' . $e);
+        //     Log::error('Error triggered: ' . $e);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error',
-                'errors' => $e,
-            ], 500);
-        }
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Internal server error',
+        //         'errors' => $e,
+        //     ], 500);
+        // }
 
         return parent::render($request, $e);
     }

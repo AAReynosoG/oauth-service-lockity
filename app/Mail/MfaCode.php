@@ -36,7 +36,7 @@ class MfaCode extends Mailable
      */
     public function build()
     {
-        return $this->subject('Sign Up Code')
+        return $this->subject('Lockity - Multi-factor code')
             ->view('email.mfa')
             ->with(['code' => $this->code, 'email' => $this->email]);
     }

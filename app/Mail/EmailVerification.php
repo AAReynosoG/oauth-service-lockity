@@ -40,7 +40,7 @@ class EmailVerification extends Mailable
      */
     public function build()
     {
-        return $this->subject('Verification Email')
+        return $this->subject('Lockity - Email Verification')
             ->view('email.email_verification')
             ->with(['url' => $this->url]);
     }

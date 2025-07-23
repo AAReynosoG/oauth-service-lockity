@@ -22,8 +22,8 @@ class MfaCode extends Mailable
      */
     public function __construct($code, $email)
     {
-        $this->code = $code;
         $this->email = $email;
+        $this->code = str_split(str_pad($code, 6, '0', STR_PAD_LEFT));
     }
 
     /**

@@ -4,21 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Mail\EmailVerification;
 use App\Mail\MfaCode;
-use App\Models\TwoFactorCode;
 use App\Models\User;
 use App\Notifications\ErrorSlackNotification;
 use App\Rules\EmailValidation;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
 use Laravel\Passport\Client;
-
+use Illuminate\Support\Facades\Cache;
 
 class LoginController extends Controller
 {
@@ -114,25 +112,17 @@ class LoginController extends Controller
             return back()->withErrors(['code' => 'Oops, an error occurred!']);
         }
 
-        $validCode = TwoFactorCode::where('user_id', $userId)
-            ->where('used', false)
-            ->where('expires_at', '>', now())
-            ->latest()
-            ->first();
+        $cachedCode = decrypt(Cache::get("mfa_code_{$userId}"));
 
-        if (!$validCode) {
+        if (!$cachedCode) {
             return back()->withErrors(['code' => 'No valid code found or it expired.']);
         }
 
-        try {
-            if ((int)$request->code !== (int)Crypt::decryptString($validCode->code)) {
-                return back()->withErrors(['code' => 'Invalid MFA code.']);
-            }
-        } catch (\Exception $e) {
-            return back()->withErrors(['code' => 'Invalid MFA code format.']);
+        if ((int)$request->code !== (int)$cachedCode) {
+            return back()->withErrors(['code' => 'Invalid MFA code.']);
         }
 
-        $validCode->update(['used' => true]);
+        cache()->forget("mfa_code_{$userId}");
 
         $user = User::findOrFail($userId);
         Auth::login($user);
@@ -198,15 +188,10 @@ class LoginController extends Controller
         DB::beginTransaction();
 
         try {
-            TwoFactorCode::where('user_id', $user->id)->update(['used' => true]);
 
             $code = rand(100000, 999999);
-
-            TwoFactorCode::create([
-                'user_id' => $user->id,
-                'code' => Crypt::encryptString($code),
-                'expires_at' => now()->addMinutes(5),
-            ]);
+            
+            Cache::put("mfa_code_{$user->id}", encrypt($code), now()->addMinutes(5));
 
             Mail::to($user->email)->send(new MfaCode($code, $user->email));
 

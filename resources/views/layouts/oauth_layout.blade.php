@@ -134,6 +134,12 @@
             width: 100%;
         }
 
+        .form-control:disabled {
+            background-color: #515355;
+            border: 1px solid #B1A8A8;
+            color: #adb5bd;
+        }
+
         .form-control:focus {
             background-color: #515355;
             border-color: #FED167;
@@ -270,7 +276,7 @@
     @yield('tabs')
 
     <div class="logo-section">
-        <img src="{{ asset('images/lockity-logo.png') }}" alt="Lockity logo">
+        <img src="https://guikspbicskovcmvfvwb.supabase.co/storage/v1/object/public/lockity-public-images/logos/lockity-logo.png" alt="Lockity logo">
     </div>
 
     <div class="form-section">

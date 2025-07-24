@@ -38,7 +38,7 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <a href="#" style="cursor: pointer" class="form-label">Forgot Password</a>
+                    <a href="{{ route('forget.password.view') }}" style="cursor: pointer" class="form-label">Forgot Password</a>
                 </div>
             </div>
 

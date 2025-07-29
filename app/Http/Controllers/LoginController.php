@@ -77,8 +77,6 @@ class LoginController extends Controller
             return back()->withErrors(['email' => $oauthValidation]);
         }
 
-        session()->forget('oauth_params');
-
         $credentials = $request->validate([
             'email' => ['required', new EmailValidation],
             'password' => ['required'],
@@ -112,6 +110,10 @@ class LoginController extends Controller
             return back()->withErrors(['code' => 'Oops, an error occurred!']);
         }
 
+        if (!Cache::has("mfa_code_{$userId}")) {
+            return back()->withErrors(['code' => 'Your code expired']);
+        }
+
         $cachedCode = decrypt(Cache::get("mfa_code_{$userId}"));
 
         if (!$cachedCode) {
@@ -128,6 +130,7 @@ class LoginController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
         session()->forget('mfa_user_id');
+        session()->forget('oauth_params');
 
         return redirect()->intended('/oauth/authorize');
     }

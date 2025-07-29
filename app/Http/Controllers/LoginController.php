@@ -35,7 +35,7 @@ class LoginController extends Controller
         $msg = 'Invalid client. Please start over.';
 
         if (!$oauthParams) {
-            return $msg;
+            return ['valid' => false, 'message' => $msg];
         }
 
         $clientId = $oauthParams['client_id'] ?? null;
@@ -47,25 +47,25 @@ class LoginController extends Controller
         $device = $oauthParams['device'] ?? null;
 
         if (!$clientId || !$redirectUri || !$codeChalenge || !$codeChallengeMethod || !$responseType || !$state || $device) {
-            return $msg;
+            return ['valid' => false, 'message' => $msg];
         }
 
         if (!filter_var($redirectUri, FILTER_VALIDATE_URL)) {
-            return $msg;
+            return ['valid' => false, 'message' => $msg];
         }
 
         $client = Client::find($clientId);
 
         if (!$client) {
-            return $msg;
+            return ['valid' => false, 'message' => $msg];
         }
 
         if (!in_array($responseType, ['code', 'token'])) {
-            return $msg;
+            return ['valid' => false, 'message' => $msg];
         }
 
         if (!in_array($redirectUri, explode(',', $client->redirect))) {
-            return $msg;
+            return ['valid' => false, 'message' => $msg];
         }
 
         return ['valid' => true, 'device' => $device];
@@ -75,7 +75,7 @@ class LoginController extends Controller
     {        
         $oauthValidation = $this->validateOAuthParams($request);
         if (!$oauthValidation['valid']) {
-            return back()->withErrors(['email' => $oauthValidation]);
+            return back()->withErrors(['email' => $oauthValidation['message']]);
         }
 
         $credentials = $request->validate([

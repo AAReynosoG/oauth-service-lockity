@@ -19,6 +19,7 @@ class Authenticate extends Middleware
                 'code_challenge',
                 'code_challenge_method',
                 'state',
+                'device'
             ]);
     }
 
@@ -40,6 +41,7 @@ class Authenticate extends Middleware
                     'code_challenge_method',
                     'response_type',
                     'state',
+                    'device'
                 ])
             ]);
         }

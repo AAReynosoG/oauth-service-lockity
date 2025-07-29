@@ -44,8 +44,9 @@ class LoginController extends Controller
         $codeChallengeMethod = $oauthParams['code_challenge_method'] ?? null;
         $responseType = $oauthParams['response_type'] ?? null;
         $state = $oauthParams['state'] ?? null;
+        $device = $oauthParams['device'] ?? null;
 
-        if (!$clientId || !$redirectUri || !$codeChalenge || !$codeChallengeMethod || !$responseType || !$state) {
+        if (!$clientId || !$redirectUri || !$codeChalenge || !$codeChallengeMethod || !$responseType || !$state || $device) {
             return $msg;
         }
 
@@ -67,13 +68,13 @@ class LoginController extends Controller
             return $msg;
         }
 
-        return true;
+        return ['valid' => true, 'device' => $device];
     }
 
     public function login(Request $request)
     {        
         $oauthValidation = $this->validateOAuthParams($request);
-        if ($oauthValidation !== true) {
+        if (!$oauthValidation['valid']) {
             return back()->withErrors(['email' => $oauthValidation]);
         }
 
@@ -90,6 +91,16 @@ class LoginController extends Controller
 
         if (!$user->has_email_verified) {
             return $this->handleUnverifiedUser($user);
+        }
+
+        $hasAccess = $this->hasAccess($oauthValidation['device'], $user);
+        if(!$hasAccess) {
+            session()->forget('oauth_params');
+            
+            $device = $oauthValidation['device'];
+            $errorMessage = $this->getAccessDeniedMessage($device);
+            
+            return back()->withErrors(['email' => $errorMessage]);
         }
 
         $this->sendMfaCode($user);
@@ -206,4 +217,43 @@ class LoginController extends Controller
             throw $e;
         }
     }
+
+    private function hasRole(User $user, $roles) {
+        $hasRole = DB::table("locker_user_roles as lur")
+        ->where("lur.user_id", $user->id)
+        ->whereIn('role', $roles)
+        ->exists();
+
+        return $hasRole;
+    }
+
+    private function hasAccess($device, User $user) {
+
+        if ($device === 'mobile') {
+            return $this->hasRole($user, ['user']);
+        }
+
+        if ($device === 'desktop') {
+            return $this->hasRole($user, ['admin']);
+        }
+
+        if ($device === 'web') {
+            return $this->hasRole($user, ['super_admin']);
+        }
+
+        return false;
+    }
+
+    private function getAccessDeniedMessage($device) {
+    switch($device) {
+        case 'mobile':
+            return 'You need user access or higher to sign in from mobile devices.';
+        case 'desktop':
+            return 'You need admin access or higher to sign in from desktop applications.';
+        case 'web':
+            return 'You need super admin access to sign in from web.';
+        default:
+            return 'Access denied. You do not have permission to access this platform.';
+    }
+}
 }

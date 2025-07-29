@@ -32,10 +32,10 @@ class LoginController extends Controller
 
     private function validateOAuthParams() {
         $oauthParams = session('oauth_params');
-        $msg = 'Invalid client. Please start over.';
+        $msg = 'Please start over.';
 
         if (!$oauthParams) {
-            return ['valid' => false, 'message' => $msg];
+            return ['valid' => false, 'message' => 'Invalid client. ' . $msg];
         }
 
         $clientId = $oauthParams['client_id'] ?? null;
@@ -46,26 +46,47 @@ class LoginController extends Controller
         $state = $oauthParams['state'] ?? null;
         $device = $oauthParams['device'] ?? null;
 
-        if (!$clientId || !$redirectUri || !$codeChalenge || !$codeChallengeMethod || !$responseType || !$state || $device) {
-            return ['valid' => false, 'message' => $msg];
+        $missingParams = [];
+    
+        if (!$clientId) $missingParams[] = 'client_id';
+        if (!$redirectUri) $missingParams[] = 'redirect_uri';
+        if (!$codeChalenge) $missingParams[] = 'code_challenge';
+        if (!$codeChallengeMethod) $missingParams[] = 'code_challenge_method';
+        if (!$responseType) $missingParams[] = 'response_type';
+        if (!$state) $missingParams[] = 'state';
+        if (!$device) $missingParams[] = 'device';
+        
+
+        if (!empty($missingParams)) {
+            $errorMessage = 'Missing or invalid OAuth parameters: ' . implode(', ', $missingParams) . '. ' . $msg;
+            return ['valid' => false, 'message' => $errorMessage, 'device' => $device];
+        }
+
+        $validDevices = ['mobile', 'desktop', 'web'];
+        if (!in_array($device, $validDevices)) {
+            return [
+                'valid' => false, 
+                'message' => 'Invalid device. Must be one of: ' . implode(', ', $validDevices) . '. ' . $msg,
+                'device' => $device
+            ];
         }
 
         if (!filter_var($redirectUri, FILTER_VALIDATE_URL)) {
-            return ['valid' => false, 'message' => $msg];
+            return ['valid' => false, 'message' => 'Invalid redirect_uri format. ' . $msg];
         }
 
         $client = Client::find($clientId);
 
         if (!$client) {
-            return ['valid' => false, 'message' => $msg];
+            return ['valid' => false, 'message' => 'Client not found. ' . $msg];
         }
 
         if (!in_array($responseType, ['code', 'token'])) {
-            return ['valid' => false, 'message' => $msg];
+            return ['valid' => false, 'message' => 'Invalid flow exchange. ' . $msg];
         }
 
         if (!in_array($redirectUri, explode(',', $client->redirect))) {
-            return ['valid' => false, 'message' => $msg];
+            return ['valid' => false, 'message' => 'Invalid redirect_uri. ' . $msg];
         }
 
         return ['valid' => true, 'device' => $device];

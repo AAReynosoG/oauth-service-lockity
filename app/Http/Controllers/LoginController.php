@@ -35,7 +35,7 @@ class LoginController extends Controller
         $msg = 'Please start over.';
 
         if (!$oauthParams) {
-            return ['valid' => false, 'message' => 'Invalid client. ' . $msg];
+            return ['valid' => false, 'message' => 'Invalid OAuth parameters. ' . $msg];
         }
 
         $clientId = $oauthParams['client_id'] ?? null;

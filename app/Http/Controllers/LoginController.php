@@ -259,22 +259,22 @@ class LoginController extends Controller
         }
 
         if ($device === 'web') {
-            return $this->hasRole($user, ['super_admin']);
+            return true;
         }
 
         return false;
     }
 
     private function getAccessDeniedMessage($device) {
-    switch($device) {
-        case 'mobile':
-            return 'You need user access or higher to sign in from mobile devices.';
-        case 'desktop':
-            return 'You need admin access or higher to sign in from desktop applications.';
-        case 'web':
-            return 'You need super admin access to sign in from web.';
-        default:
-            return 'Access denied. You do not have permission to access this platform.';
+        switch($device) {
+            case 'mobile':
+                return 'You need user access or higher to sign in from mobile devices.';
+            case 'desktop':
+                return 'You need admin access or higher to sign in from desktop applications.';
+            case 'web':
+                return 'You need super admin access to sign in from web.';
+            default:
+                return 'Access denied. You do not have permission to access this platform.';
+        }
     }
-}
 }

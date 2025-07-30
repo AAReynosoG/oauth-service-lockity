@@ -25,6 +25,9 @@ use Laravel\Passport\Http\Controllers\AccessTokenController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::redirect('', '/login');
+
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login.view');
 Route::post('/login', [LoginController::class, 'login'])->name('login');
 

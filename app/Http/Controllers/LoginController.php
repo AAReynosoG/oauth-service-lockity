@@ -270,7 +270,7 @@ class LoginController extends Controller
             case 'mobile':
                 return 'You need user access or higher to sign in from mobile devices.';
             case 'desktop':
-                return 'You need admin access or higher to sign in from desktop applications.';
+                return 'You need admin access to sign in from desktop applications.';
             case 'web':
                 return 'You need super admin access to sign in from web.';
             default:

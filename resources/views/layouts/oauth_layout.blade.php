@@ -13,15 +13,32 @@
             box-sizing: border-box;
         }
 
-        body {
+        /* body {
             background-color: #2E2D2D;
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             justify-content: center;
-            padding: 70px;
+            padding: 40px;
+        } */
+
+        body {
+            background-color: #2E2D2D;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 40px;
+            display: block; /* O remueve 'display: flex' por completo */
+        }
+
+        @media (min-width: 992px) {
+            body {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
         }
 
         .main-container {

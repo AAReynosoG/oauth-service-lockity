@@ -254,6 +254,33 @@
             min-width: 250px;
         }
 
+        .cf-turnstile {
+            margin: 20px 0;
+            display: flex;
+            justify-content: left;
+        }
+
+        @media (max-width: 768px) {
+            .cf-turnstile {
+                transform: scale(0.9);
+                transform-origin: left;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .cf-turnstile {
+                transform: scale(0.8);
+                transform-origin: left;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .cf-turnstile {
+                transform: scale(0.7);
+                transform-origin: left;
+            }
+        }
+
         @media (max-width: 768px) {
             .title-text {
                 font-size: 32px;

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Rules\EmailValidation;
 use App\Rules\FullNameValidation;
 
 use App\Rules\PasswordValidation;
@@ -10,8 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Log;
+use App\Rules\TurnstileValidation;
 
 class UserController extends Controller
 {
@@ -49,6 +48,7 @@ class UserController extends Controller
             'name' => ['sometimes', new FullNameValidation],
             'last_name' => ['sometimes', new FullNameValidation],
             'second_last_name' => ['sometimes', new FullNameValidation],
+            'cf-turnstile-response' => ['required', new TurnstileValidation($request)],
         ]);
 
         if ($validator->fails()) {
@@ -89,6 +89,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'current_password' => ['required'],
             'new_password' => ['required', new PasswordValidation],
+            'cf-turnstile-response' => ['required', new TurnstileValidation($request)],
         ]);
 
         if ($validator->fails()) {

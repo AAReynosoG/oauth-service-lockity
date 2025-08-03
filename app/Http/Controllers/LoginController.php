@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
 use Laravel\Passport\Client;
 use Illuminate\Support\Facades\Cache;
+use App\Rules\TurnstileValidation;
 
 class LoginController extends Controller
 {
@@ -102,6 +103,7 @@ class LoginController extends Controller
         $credentials = $request->validate([
             'email' => ['required', new EmailValidation],
             'password' => ['required'],
+            'cf-turnstile-response' => ['required', new TurnstileValidation($request)],
         ]);
 
         $user = User::where('email', $credentials['email'])->first();
@@ -135,6 +137,7 @@ class LoginController extends Controller
     {
         $request->validate([
             'code' => ['required', 'numeric'],
+            'cf-turnstile-response' => ['required', new TurnstileValidation($request)],
         ]);
 
         $userId = session('mfa_user_id');
@@ -268,7 +271,7 @@ class LoginController extends Controller
     private function getAccessDeniedMessage($device) {
         switch($device) {
             case 'mobile':
-                return 'You need user access or higher to sign in from mobile devices.';
+                return 'You need user access to sign in from mobile devices.';
             case 'desktop':
                 return 'You need admin access to sign in from desktop applications.';
             case 'web':

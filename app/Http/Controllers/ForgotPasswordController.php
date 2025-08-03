@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use App\Rules\TurnstileValidation;
 
 class ForgotPasswordController extends Controller
 {
@@ -29,6 +30,7 @@ class ForgotPasswordController extends Controller
         $request->validate([
             'email' => ['required', new EmailValidation, 'exists:users'],
             'password' => ['required', new PasswordValidation , 'confirmed'],
+            'cf-turnstile-response' => ['required', new TurnstileValidation($request)],
         ]);
 
         DB::beginTransaction();
@@ -64,6 +66,7 @@ class ForgotPasswordController extends Controller
     {
         $request->validate([
             'email' => ['required', new EmailValidation, 'exists:users'],
+            'cf-turnstile-response' => ['required', new TurnstileValidation($request)],
         ]);
 
         $token = Str::random(64);

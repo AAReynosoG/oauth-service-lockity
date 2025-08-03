@@ -8,10 +8,11 @@ use App\Notifications\ErrorSlackNotification;
 use App\Rules\EmailValidation;
 use App\Rules\FullNameValidation;
 use App\Rules\PasswordValidation;
-
+use App\Rules\TurnstileValidation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
@@ -31,6 +32,7 @@ class RegisterController extends Controller
             'second_last_name' => ['required', new FullNameValidation],
             'email' => ['required', new EmailValidation, 'unique:users,email'],
             'password' => ['required', new PasswordValidation , 'confirmed'],
+            'cf-turnstile-response' => ['required', new TurnstileValidation($request)],
         ]);
 
         DB::beginTransaction();
@@ -56,7 +58,7 @@ class RegisterController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            $notification = new ErrorSlackNotification($e);
+            $notification = new ErrorSlackNotification($e->getMessage());
             Notification::route('slack', env('SLACK_WEBHOOK'))->notify($notification);
             return redirect()->back()->withErrors(['error' => 'Could not send verification email, your account could not be created. Try again later.']);
         }

@@ -51,6 +51,11 @@ return [
     */
 
     'channels' => [
+        'sentry' => [
+            'driver' => 'sentry',
+            'level' => 'error'
+        ],
+
         'stack' => [
             'driver' => 'stack',
             'channels' => ['single'],

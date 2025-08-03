@@ -71,9 +71,7 @@ class UserController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error updating user: ' . $e->getMessage());
-            
+            $this->logToSentryWithTimeout($e);
             return response()->json([
                 'success' => false,
                 'message' => 'Internal Server Error.',
@@ -121,8 +119,7 @@ class UserController extends Controller
             return response()->json([], 204);
 
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error updating password: ' . $e->getMessage());
+            $this->logToSentryWithTimeout($e);
             return response()->json([
                 'success' => false,
                 'message' => 'Internal Server Error.',

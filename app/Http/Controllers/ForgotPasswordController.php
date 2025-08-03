@@ -54,8 +54,7 @@ class ForgotPasswordController extends Controller
             DB::commit();
 
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('submitResetPasswordForm: ' . $e);
+            $this->logToSentryWithTimeout($e);
             return redirect()->back()->withErrors(['error' => 'An error occurred while resetting the password.']);
         }
 
@@ -88,9 +87,8 @@ class ForgotPasswordController extends Controller
             Mail::to($request->email)->send(new ForgetPassword($token));
 
         }catch (\Exception $e) {
-
-            Log::error('submitForgetPasswordForm: '. $e);
-            return redirect()->back()->withErrors(['email' => 'Internal Server Error']);
+            $this->logToSentryWithTimeout($e);
+            return redirect()->back()->withErrors(['email' => 'An error occurred while sending the password reset link. Please try again later.']);
         }
 
         return redirect()->route('login.view')->with('success_messages', ['We have sent a password reset link to your email.']);

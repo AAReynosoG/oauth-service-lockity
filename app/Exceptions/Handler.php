@@ -2,12 +2,10 @@
 
 namespace App\Exceptions;
 
-use App\Notifications\ErrorSlackNotification;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Session\TokenMismatchException;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 use Laravel\Passport\Exceptions\OAuthServerException;
 use Illuminate\Support\Facades\Log;
@@ -45,6 +43,23 @@ class Handler extends ExceptionHandler
         'password',
         'password_confirmation',
     ];
+
+
+    private function logToSentryWithTimeout(Throwable $e): void
+    {
+        dispatch(function () use ($e) {
+            try {
+                Log::channel('sentry')->error('Exception occurred', [
+                    'exception' => $e,
+                ]);
+            } catch (\Exception $sentryException) {
+                Log::error('Sentry logging failed', [
+                    'original_error' => $e->getMessage(),
+                    'sentry_error' => $sentryException->getMessage(),
+                ]);
+            }
+        });
+    }
 
     /**
      * Register the exception handling callbacks for the application.
@@ -101,23 +116,18 @@ class Handler extends ExceptionHandler
             ], 403);
         }
 
-        // if ($e instanceof \Exception) {
+        if ($e instanceof \Exception) {
+            $this->logToSentryWithTimeout($e);
 
-        //     try {
-        //         $notification = new ErrorSlackNotification($e);
-        //         Notification::route('slack', env('SLACK_WEBHOOK'))->notify($notification);
-        //     } catch (Throwable $e) {
-        //         Log::error('Failed to send to Slack: ' . $e);
-        //     }
+            $code = $e->getCode();
+            $httpCode = ($code >= 100 && $code <= 599) ? $code : 500;
 
-        //     Log::error('Error triggered: ' . $e);
-
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => 'Internal server error',
-        //         'errors' => $e,
-        //     ], 500);
-        // }
+            return response()->json([
+                'success' => false,
+                'message' => 'Internal server error',
+                'errors' => null,
+            ], $httpCode);
+        }
 
         return parent::render($request, $e);
     }

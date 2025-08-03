@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Mail\EmailVerification;
 use App\Models\User;
-use App\Notifications\ErrorSlackNotification;
 use App\Rules\EmailValidation;
 use App\Rules\FullNameValidation;
 use App\Rules\PasswordValidation;
@@ -12,9 +11,7 @@ use App\Rules\TurnstileValidation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
 
 class RegisterController extends Controller
@@ -58,8 +55,7 @@ class RegisterController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            $notification = new ErrorSlackNotification($e->getMessage());
-            Notification::route('slack', env('SLACK_WEBHOOK'))->notify($notification);
+            $this->logToSentryWithTimeout($e);
             return redirect()->back()->withErrors(['error' => 'Could not send verification email, your account could not be created. Try again later.']);
         }
 

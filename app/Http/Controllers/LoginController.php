@@ -212,8 +212,7 @@ class LoginController extends Controller
 
                 $msg .= ' A new verification email has been sent.';
             } catch (\Exception $e) {
-                $notification = new ErrorSlackNotification($e);
-                Notification::route('slack', env('SLACK_WEBHOOK'))->notify($notification);
+                $this->logToSentryWithTimeout($e);
                 return back()->withErrors(['email' => 'Could not send a new verification email, try again later.']);
             }
         }
@@ -221,7 +220,7 @@ class LoginController extends Controller
         return back()->withErrors(['email' => $msg]);
     }
 
-    private function sendMfaCode(User $user): void
+    private function sendMfaCode(User $user)
     {
         DB::beginTransaction();
 
@@ -236,9 +235,8 @@ class LoginController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            $notification = new ErrorSlackNotification($e);
-            Notification::route('slack', env('SLACK_WEBHOOK'))->notify($notification);
-            throw $e;
+            $this->logToSentryWithTimeout($e);
+            return back()->withErrors(['email' => 'Could not send MFA code, try again later.']);
         }
     }
 

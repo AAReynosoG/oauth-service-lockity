@@ -83,7 +83,14 @@
             </div>
         </div>
 
-        <button id="submit-button" type="submit" class="btn btn-login" disabled>Sign Up</button>
+        <div
+            data-sitekey="0x4AAAAAABn24F7kFWLOVLCC"
+            class="cf-turnstile"
+        ></div>
+
+        <button id="submit-button" type="submit" class="btn btn-login" disabled>
+            Sign Up
+        </button>
     </form>
 @endsection
 
@@ -111,6 +118,10 @@
             password === passwordConfirmation;
 
         submitButton.disabled = !isFormValid;
+    }
+
+    function onSubmit(token) {
+        console.log('Form submitted with Turnstile token:', token);
     }
 
     document.addEventListener('DOMContentLoaded', function() {

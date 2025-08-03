@@ -42,6 +42,11 @@
                 </div>
             </div>
 
+            <div
+                data-sitekey="0x4AAAAAABn24F7kFWLOVLCC"
+                class="cf-turnstile"
+            ></div>
+
             <button id="submit-button" type="submit" class="btn btn-login" disabled>Sign In</button>
         </form>
 @endsection

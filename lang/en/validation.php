@@ -179,6 +179,8 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        'cf-turnstile-response' => 'Cloudflare security verification',
+    ],
 
 ];

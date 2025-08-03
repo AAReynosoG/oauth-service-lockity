@@ -84,7 +84,7 @@
         </div>
 
         <div
-            data-sitekey="0x4AAAAAABn24F7kFWLOVLCC"
+            data-sitekey="0x4AAAAAABoCGDhVzX85jd4T"
             class="cf-turnstile"
         ></div>
 

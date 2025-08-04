@@ -48,7 +48,6 @@ class UserController extends Controller
             'name' => ['sometimes', new FullNameValidation],
             'last_name' => ['sometimes', new FullNameValidation],
             'second_last_name' => ['sometimes', new FullNameValidation],
-            'cf-turnstile-response' => ['required', new TurnstileValidation($request)],
         ]);
 
         if ($validator->fails()) {
@@ -87,7 +86,6 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'current_password' => ['required'],
             'new_password' => ['required', new PasswordValidation],
-            'cf-turnstile-response' => ['required', new TurnstileValidation($request)],
         ]);
 
         if ($validator->fails()) {
